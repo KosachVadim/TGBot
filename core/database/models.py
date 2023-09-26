@@ -41,3 +41,19 @@ class Vacancy(Base):
 
     country = relationship('Country', backref='vacancies')
     contact_person = relationship('Person', backref='contact_vacancies')
+<<<<<<< HEAD
+=======
+
+class Applicant(Base):
+    __tablename__ = 'core_applicant'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255))
+    phone = Column(String(15))
+    vacancy_id = Column(Integer, ForeignKey('core_vacancy.id'))
+
+    vacancy = relationship('Vacancy', backref='applicants')
+
+    def __str__(self):
+        return self.name
+>>>>>>> 6302428 (new change2)

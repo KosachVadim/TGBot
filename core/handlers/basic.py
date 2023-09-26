@@ -1,15 +1,28 @@
+<<<<<<< HEAD
 from aiogram import  Router, F
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from core.utils.statesform import StepsForm
 from core.utils.utils import get_vacancies
+=======
+import re
+from aiogram import Router, F
+from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
+from core.utils.statesform import StepsForm
+from core.utils.utils import get_vacancies, fill_data_in_database
+>>>>>>> 6302428 (new change2)
 import core.keyboards.reply as kb
 from core.keyboards.reply import (
     get_kb_countries,
     get_kb_cities,
+<<<<<<< HEAD
     get_kb_specializations_filter,
     get_kb_specializations,
     get_kb_specializations_filter_by_country
+=======
+    get_kb_specializations
+>>>>>>> 6302428 (new change2)
 )
 
 router = Router()
@@ -23,6 +36,10 @@ vacancy_blocks = ""
 async def get_start(message: Message):
     await message.answer(f'Привет, {message.from_user.first_name}, ты можешь узнать информацию о моей работе или же приступить к поиску нажав на конпоку "Вакансии"', reply_markup=kb.main)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6302428 (new change2)
 # Обработчик команды "Вакансии"
 @router.message(F.text == 'Вакансии')
 async def bt_vacancy(message: Message):
@@ -75,9 +92,15 @@ async def bt_specialization_filter(message: Message, state: FSMContext):
         if message.text == 'Не важно':
             context_data = await state.get_data()
             country_name = context_data.get('country')
+<<<<<<< HEAD
             await message.answer(f'Выберите специализацию или выберите Не важно', reply_markup=get_kb_specializations_filter_by_country(country_name))
         else:
             await message.answer(f'Выберите специализацию или выберите Не важно', reply_markup=get_kb_specializations_filter(message.text))
+=======
+            await message.answer(f'Выберите специализацию или выберите Не важно', reply_markup=get_kb_specializations(country_name))
+        else:
+            await message.answer(f'Выберите специализацию или выберите Не важно', reply_markup=get_kb_specializations(None, message.text))
+>>>>>>> 6302428 (new change2)
             await state.update_data(city=message.text)
         await state.set_state(StepsForm.GET_SPECIALIZATION)
 
@@ -90,7 +113,10 @@ async def bt_vacancy(message: Message, state: FSMContext):
     await state.clear()
 
     global vacancy_blocks
+<<<<<<< HEAD
     #vacancy_blocks = get_vacancies_filter(country, city, specialization)
+=======
+>>>>>>> 6302428 (new change2)
     vacancy_blocks = get_vacancies(country, city, specialization)
 
     global current_index
@@ -119,11 +145,53 @@ async def send_vacancies(message: Message, state: FSMContext):
         return
 
     for i in range(current_index, min(current_index + 5, len(vacancy_blocks))):
+<<<<<<< HEAD
         await message.answer(f'Вакансия {i + 1}:\n{vacancy_blocks[i]}', reply_markup=kb.vacancy)
+=======
+        vacancy_block, keyboard = vacancy_blocks[i]
+        await message.answer(f'Вакансия {i + 1}:\n{vacancy_block}', reply_markup=keyboard)
+>>>>>>> 6302428 (new change2)
 
     if current_index < len(vacancy_blocks):
         await message.answer("Для продолжения нажмите 'Просмотреть ещё'", reply_markup=kb.vacancy)
 
+<<<<<<< HEAD
+=======
+@router.callback_query(F.data.startswith("vacancy_"))
+async def fill_acc(message: Message, state:FSMContext):
+    await message.answer(f'Введите своё ФИО: ')
+    vacancy_id = message.data.split('_')[1]
+    await state.update_data(vacancy_id=vacancy_id)
+    await state.set_state(StepsForm.GET_FIO)
+
+@router.message(StepsForm.GET_FIO)
+async def get_name(message: Message, state: FSMContext):
+    fio = message.text.strip()
+    if not re.match(r'^[А-ЯЁа-яёA-Za-z]+\s[А-ЯЁа-яёA-Za-z]+\s[А-ЯЁа-яёA-Za-z]+$', fio):
+        await message.answer("Пожалуйста, введите корректное ФИО (Фамилия Имя Отчество), используя буквы и пробелы. Попробуйте снова.")
+        return  # Возвращаемся к ожиданию правильного ввода
+
+    await state.update_data(fio=fio)
+    await message.answer("Введите ваш номер мобильного телефона:")
+    await state.set_state(StepsForm.GET_NUMBER)
+
+
+@router.message(StepsForm.GET_NUMBER)
+async def get_number(message: Message, state: FSMContext):
+    number = message.text.strip()
+    if re.match(r'^\+\d{12}$', number):  # Проверьте номер на соответствие нужному формату
+        tel_number = number
+    else:
+        await message.answer("Пожалуйста, введите корректный номер мобильного телефона. Попробуйте снова.")
+
+    context_data = await state.get_data()
+    vacancy_id, fio = context_data.get('vacancy_id'), context_data.get('fio')
+    fill_data_in_database(vacancy_id, fio, tel_number)
+    await message.answer(f'Ваши данные успешно были добавлены')
+    await state.clear()
+
+
+>>>>>>> 6302428 (new change2)
 # Обработчик команды "Назад в меню"
 @router.message(F.text == 'Назад в меню')
 async def restart_bot(message: Message):

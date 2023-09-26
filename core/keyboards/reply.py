@@ -1,6 +1,10 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
+<<<<<<< HEAD
 from core.utils.utils import get_countries, get_cities, get_specialization_filter_by_city, get_specialization, get_specialization_by_country
+=======
+from core.utils.utils import get_countries, get_cities, get_specializations
+>>>>>>> 6302428 (new change2)
 main_kb = [
     [KeyboardButton(text='О боте'),
      KeyboardButton(text='Вакансии')]
@@ -45,6 +49,7 @@ def get_kb_cities(country_name):
     return kb_buld.as_markup(resize_keyboard=True)
 
 
+<<<<<<< HEAD
 def get_kb_specializations():
     kb_buld = ReplyKeyboardBuilder()
     unique_specialization = set(get_specialization())
@@ -56,11 +61,25 @@ def get_kb_specializations():
 def get_kb_specializations_filter(city_name):
     kb_buld = ReplyKeyboardBuilder()
     unique_specialization = set(get_specialization_filter_by_city(city_name))
+=======
+
+def get_kb_specializations(country_name=None, city_name=None):
+    kb_buld = ReplyKeyboardBuilder()
+
+    if country_name is not None:
+        unique_specialization = set(get_specializations(country_name))
+    elif city_name is not None:
+        unique_specialization = set(get_specializations(None, city_name))
+    else:
+        unique_specialization = set(get_specializations())
+
+>>>>>>> 6302428 (new change2)
     for specialization in unique_specialization:
         kb_buld.button(text=specialization)
 
     kb_buld.button(text='Не важно')
     kb_buld.adjust(1)
+<<<<<<< HEAD
     return kb_buld.as_markup(resize_keyboard=True)
 
 def get_kb_specializations_filter_by_country(country_name):
@@ -72,3 +91,7 @@ def get_kb_specializations_filter_by_country(country_name):
     kb_buld.button(text='Не важно')
     kb_buld.adjust(1)
     return kb_buld.as_markup(resize_keyboard=True)
+=======
+
+    return kb_buld.as_markup(resize_keyboard=True)
+>>>>>>> 6302428 (new change2)
