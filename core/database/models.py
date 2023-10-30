@@ -41,8 +41,7 @@ class Vacancy(Base):
 
     country = relationship('Country', backref='vacancies')
     contact_person = relationship('Person', backref='contact_vacancies')
-<<<<<<< HEAD
-=======
+
 
 class Applicant(Base):
     __tablename__ = 'core_applicant'
@@ -56,4 +55,4 @@ class Applicant(Base):
 
     def __str__(self):
         return self.name
->>>>>>> 6302428 (new change2)
+
