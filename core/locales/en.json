@@ -1,0 +1,66 @@
+{
+  "start_message": "Chat entry 💬\nSelect interface language: ",
+  "choose_name": "Great, please provide your name!",
+  "continue": "Let's continue...",
+  "about_bot": "The bot is created to simplify and expedite the job placement process. '\n'ATTENTION!!! THE CHAT DOES NOT charge any fees from you. '\n'Here you can: '\n'1) Find a suitable job; '\n'2) Contact a manager for additional information; '\n'3) Verify the authenticity of the job and employer; '\n'4) Create your resume; '\n'5) Become our agent /Learn more; '\n'6) Apply for a work visa.",
+  "choose_option": "Choose an option",
+  "search_vacancy": "Where are you looking for a job?",
+  "no_vacancies": "No vacancies for this country yet.",
+  "here_is_what_we_have": "Here's what we have :)",
+  "view_more": "To continue, press More vacancies ",
+  "vacancy_prefix": "Vacancy:",
+  "vacancies_finished": "Vacancies are finished.",
+  "back": "To go back, press Back",
+  "back_to_menu": "Main menu",
+  "unknown_command": "I don't understand you",
+  "title": "Vacancy",
+  "city": "City of work",
+  "language": "Language",
+  "specialization": "Position",
+  "salary": "Salary",
+  "manager": "Manager",
+  "for_whom": "For whom 👥",
+  "schedule": "Schedule⏱️",
+  "housing": "Housing🏠",
+  "work_clothes": "Work clothes🦺",
+  "getting_to_work": "Getting to work🚌",
+  "responsibilities": "Responsibilities📍",
+  "requirements": "Requirements📌",
+  "nationality": "Enter your nationality",
+  "experience_job_title": "Tell us about your job experience",
+  "experience_duration_years": "How many years of work experience do you have?",
+  "experience_description": "Tell us about yourself",
+  "add_data": "Your data has been successfully added",
+
+  "main_kb": [
+    {"text": "About the bot 🤖"},
+    {"text": "Job search 📃"},
+    {"text": "Create a resume \uD83D\uDE0E"}
+  ],
+  "vacancy_kb": [
+    {"text": "More vacancies \uD83C\uDF10"},
+    {"text": "Back ◀️"}
+  ],
+  "details_kb": [
+    {"text": "Back ⬅\uFE0F"},
+    {"text": "More details \uD83D\uDD3D"}
+  ],
+  "language_kb": [
+    {"text": "Russian"},
+    {"text": "Ukrainian"},
+    {"text": "English"}
+  ],
+   "countries": [
+    {"text": "Poland 🇵🇱"},
+    {"text": "Germany 🇩🇪"},
+    {"text": "Spain 🇪🇸"},
+    {"text": "Lithuania 🇱🇹"},
+    {"text": "United Kingdom 🇬🇧"},
+    {"text": "Belgium 🇧🇪"},
+     {"text": "Back ◀\uFE0F"}
+  ],
+   "info": [
+     {"text": "Job search \uD83D\uDCC3"},
+     {"text": "Contact Manager \uD83E\uDD1D"}
+   ]
+}

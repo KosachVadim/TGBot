@@ -1,68 +1,57 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
-from core.utils.utils import get_countries, get_cities, get_specializations
-main_kb = [
-    [KeyboardButton(text='О боте'),
-     KeyboardButton(text='Вакансии')]
-
-]
-
-country_kb = [
-
-    [KeyboardButton(text='Страна'),
-     KeyboardButton(text='Специализация'),
-     KeyboardButton(text='Все вакансии')]
-
-]
-
-vacancy_kb = [
-
-    [KeyboardButton(text='Просмотреть ещё'),
-     KeyboardButton(text='Назад в меню')]
-
-]
-
-vacancy = ReplyKeyboardMarkup(keyboard=vacancy_kb, resize_keyboard=True)
-main = ReplyKeyboardMarkup(keyboard=main_kb, resize_keyboard=True)
-country = ReplyKeyboardMarkup(keyboard=country_kb, resize_keyboard=True)
-
-
-def get_kb_countries():
-    kb_buld = ReplyKeyboardBuilder()
-    for country in get_countries():
-        kb_buld.button(text=country)
-    kb_buld.adjust(1)
-    return kb_buld.as_markup(resize_keyboard=True)
-
-def get_kb_cities(country_name):
-    kb_buld = ReplyKeyboardBuilder()
-    unique_cities = set(get_cities(country_name))  # Создаем множество уникальных городов
-    for city in unique_cities:
-        kb_buld.button(text=city)
-
-    kb_buld.button(text='Не важно')
-    kb_buld.adjust(1)
-    return kb_buld.as_markup(resize_keyboard=True)
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+import json
+from core.utils.utils import get_buttons_data_kb, get_buttons_data
+with open(f'core/locales/default.json', 'r', encoding='utf-8') as file:
+    default_data = json.load(file)
 
 
 
-def get_kb_specializations(country_name=None, city_name=None):
-    kb_buld = ReplyKeyboardBuilder()
+language_kb_texts = [button["text"] for button in default_data.get("language_kb", [])]
 
-    if country_name is not None:
-        unique_specialization = set(get_specializations(country_name))
-    elif city_name is not None:
-        unique_specialization = set(get_specializations(None, city_name))
-    else:
-        unique_specialization = set(get_specializations())
+language = ReplyKeyboardMarkup(
+    keyboard=[[KeyboardButton(text=button_text) for button_text in language_kb_texts]],
+    resize_keyboard=True
+)
 
+def create_main_kb():
+    main_kb_texts = [button["text"] for button in get_buttons_data_kb("main_kb")]
+    main = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=button_text) for button_text in main_kb_texts]],
+        resize_keyboard=True
+    )
+    return main
 
-    for specialization in unique_specialization:
-        kb_buld.button(text=specialization)
+def create_vacancy_kb():
+    vacancy_kb_texts = [button["text"] for button in get_buttons_data_kb("vacancy_kb")]
+    vacancy = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=button_text) for button_text in vacancy_kb_texts]],
+        resize_keyboard=True
+    )
+    return vacancy
 
-    kb_buld.button(text='Не важно')
-    kb_buld.adjust(1)
+def create_details_kb():
+    details_kb_texts = get_buttons_data("details_kb", 0)
+    details = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=details_kb_texts)]], resize_keyboard=True)
+    return details
 
-    return kb_buld.as_markup(resize_keyboard=True)
+def create_countries_kb():
+    countries_kb_texts = [button["text"] for button in get_buttons_data_kb("countries")]
+    countries = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=country_text)] for country_text in countries_kb_texts],
+        resize_keyboard=True
+    )
+    return countries
+
+def create_info_kb():
+    info_text = get_buttons_data("info", 1)
+    info_url = 'https://t.me/AlekseiDeshko'
+    info = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=info_text, url=info_url)]])
+    return info
+
+def create_search_kb():
+    search_vacancy_text = get_buttons_data("info", 0)
+    search_vacancy = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=search_vacancy_text)]], resize_keyboard=True)
+    return search_vacancy
 
 

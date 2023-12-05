@@ -1,0 +1,60 @@
+{
+"choose_name": "Świetnie, podaj swoje imię!",
+"continue": "Idziemy dalej...",
+"about_bot": "Bot został stworzony w celu uproszczenia i przyspieszenia procesu zatrudnienia. '\n' UWAGA!!! CZAT NIE pobiera żadnych opłat od Ciebie. '\n' Tutaj będziesz mógł: '\n' 1) Wybrać odpowiednią ofertę pracy; '\n' 2) Skontaktować się z menedżerem w celu uzyskania dodatkowych informacji; '\n' 3) Sprawdzić autentyczność oferty pracy i pracodawcy; '\n' 4) Stworzyć swoje CV; '\n' 5) Stać się naszym agentem / Więcej informacji; '\n' 6) Uzyskać wizę pracowniczą.",
+"choose_option": "Wybierz opcję",
+"search_vacancy": "Gdzie szukasz pracy?",
+"no_vacancies": "Na razie brak ofert pracy dla tego kraju.",
+"here_is_what_we_have": "Oto, co mamy :)",
+"view_more": "Aby kontynuować, naciśnij Dodatkowe oferty ",
+"vacancy_prefix": "Oferta pracy:",
+"vacancies_finished": "Oferty pracy się skończyły.",
+"back": "Aby wrócić, naciśnij Wstecz",
+"back_to_menu": "Menu główne",
+"unknown_command": "Nie rozumiem cię",
+"title": "Oferta pracy",
+"city": "Miasto pracy",
+"language": "Język",
+"specialization": "Specjalizacja",
+"salary": "Wynagrodzenie",
+"manager": "Menedżer",
+"for_whom": "Dla kogo 👥",
+"schedule": "Grafik⏱️",
+"housing": "Mieszkanie🏠",
+"work_clothes": "Ubranie robocze🦺",
+"getting_to_work": "Dojazd do pracy🚌",
+"responsibilities": "Obowiązki📍",
+"requirements": "Wymagania📌",
+"nationality": "Podaj swoją narodowość",
+"experience_job_title": "Opowiedz o swoim doświadczeniu zawodowym",
+"experience_duration_years": "Ile lat pracowałeś?",
+"experience_description": "Opowiedz o sobie",
+"add_data": "Twoje dane zostały pomyślnie dodane",
+
+"main_kb": [
+{"text": "O bocie 🤖"},
+{"text": "Wyszukaj ofertę pracy 📃"},
+{"text": "Stwórz CV \uD83D\uDE0E"}
+],
+"vacancy_kb": [
+{"text": "Dodatkowe oferty pracy \uD83C\uDF10"},
+{"text": "Wstecz ◀\uFE0F"}
+],
+"details_kb": [
+{"text": "Wstecz ⬅\uFE0F"},
+{"text": "Więcej informacji \uD83D\uDD3D"}
+],
+"countries": [
+{"text": "Polska 🇵🇱"},
+{"text": "Niemcy 🇩🇪"},
+{"text": "Hiszpania 🇪🇸"},
+{"text": "Litwa 🇱🇹"},
+{"text": "Wielka Brytania 🇬🇧"},
+{"text": "Belgia 🇧🇪"},
+{"text": "Wstecz ◀\uFE0F"}
+],
+"info": [
+{"text": "Wyszukaj ofertę pracy \uD83D\uDCC3"},
+{"text": "Skontaktuj się z Menedżerem \uD83E\uDD1D"}
+]
+}

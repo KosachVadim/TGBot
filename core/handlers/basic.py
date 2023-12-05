@@ -1,109 +1,114 @@
-
-import re
-from aiogram import Router, F
-from aiogram.types import Message
+import json
+from aiogram import Router, F, types
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from core.utils.statesform import StepsForm
-from core.utils.utils import get_vacancies, fill_data_in_database
-
+from core.utils.utils import get_vacancies, check_in_database_flag, get_details, get_text, get_language_code, get_buttons_data_emoji, add_user, add_resume
 import core.keyboards.reply as kb
-from core.keyboards.reply import (
-    get_kb_countries,
-    get_kb_cities,
-    get_kb_specializations
-
-)
+from core.keyboards.reply import create_main_kb, create_details_kb, create_vacancy_kb, create_search_kb, create_countries_kb, create_info_kb
 
 router = Router()
-
 # Глобальные переменные для отслеживания текущей страницы и блоков вакансий
 current_index = 0
 vacancy_blocks = ""
 
+
+
+with open(f'core/locales/default.json', 'r', encoding='utf-8') as file:
+    default_data = json.load(file)
+
+
 # Обработчик команды /start
 @router.message(F.text == '/start')
-async def get_start(message: Message):
-    await message.answer(f'Привет, {message.from_user.first_name}, ты можешь узнать информацию о моей работе или же приступить к поиску нажав на конпоку "Вакансии"', reply_markup=kb.main)
+async def get_start(message: Message, state: FSMContext):
+    await message.answer(default_data.get("start_message"), reply_markup=kb.language)
+    await state.set_state(StepsForm.LANGUAGE)
+
+#Обработчик выбора языка
+@router.message(StepsForm.LANGUAGE)
+async def bt_language(message: Message, state: FSMContext):
+    await get_language_code(message.text)
+    await message.answer(get_text('choose_name'), reply_markup=types.ReplyKeyboardRemove())
+    await state.set_state(StepsForm.GET_NAME)
+
+
+#Обработчик имени пользователя
+@router.message(StepsForm.GET_NAME)
+async def bt_name(message: Message, state: FSMContext):
+    name = message.text
+    await add_user(name)
+    await state.clear()
+    await state.update_data(name=name)
+    await message.answer(get_text('continue'), reply_markup=create_main_kb())
+
+
+@router.message(F.text.rsplit(' ', 1)[-1] == get_buttons_data_emoji("main_kb", 2))
+async def bt_nationality_resume(message: Message, state: FSMContext):
+    await message.answer(get_text('nationality'))
+    await state.set_state(StepsForm.GET_NATIONALITY)
+@router.message(StepsForm.GET_NATIONALITY)
+async def bt_experience_job_title_resume(message: Message, state: FSMContext):
+    await state.update_data(nationality=message.text)
+    await message.answer(get_text('experience_job_title'))
+    await state.set_state(StepsForm.GET_EXPERIENCE_JOB_TITLE)
+
+@router.message(StepsForm.GET_EXPERIENCE_JOB_TITLE)
+async def bt_experience_duration_years_resume(message: Message, state: FSMContext):
+    await state.update_data(experience_job_title=message.text)
+    await message.answer(get_text('experience_duration_years'))
+    await state.set_state(StepsForm.GET_EXPERIENCE_DURATION_YEARS)
+
+@router.message(StepsForm.GET_EXPERIENCE_DURATION_YEARS)
+async def bt_experience_description_resume(message: Message, state: FSMContext):
+    await state.update_data(experience_duration_years=message.text)
+    await message.answer(get_text('experience_description'))
+    await state.set_state(StepsForm.GET_EXPERIENCE_DESCRIPTION)
+
+@router.message(StepsForm.GET_EXPERIENCE_DESCRIPTION)
+async def bt_add_data_resume(message: Message, state: FSMContext):
+    experience_description = message.text
+    context_data = await state.get_data()
+    name, nationality, experience_job_title, experience_duration_years = context_data.get('name'), context_data.get('nationality'), context_data.get('experience_job_title'), context_data.get('experience_duration_years')
+    await add_resume(name, nationality, experience_job_title, experience_duration_years, experience_description)
+    await message.answer(get_text('add_data'), reply_markup=create_main_kb())
+    await state.clear()
+
+
+# Обработчик команды "О боте"
+@router.message(F.text.rsplit(' ', 1)[-1] == get_buttons_data_emoji("main_kb",0))
+async def bt_info(message: Message):
+    await message.answer(get_text('about_bot'), reply_markup=create_info_kb())
+    await message.answer(get_text('choose_option'), reply_markup=create_search_kb())
 
 # Обработчик команды "Вакансии"
-@router.message(F.text == 'Вакансии')
-async def bt_vacancy(message: Message):
-    await message.answer(f'Выберите Страну, просмотор всех вакансий или же можете пропустить выбор страны и города и перейти сразу к выбору специализации нажав на кнопку', reply_markup=kb.country)
 
-# Обработчик команды "Страна"
-@router.message(F.text == 'Страна')
+@router.message(F.text.rsplit(' ', 1)[-1] == get_buttons_data_emoji("main_kb", 1))
 async def bt_country(message: Message, state: FSMContext):
-    await message.answer(f'Выберите страну', reply_markup=get_kb_countries())
+    await message.answer(get_text('search_vacancy'), reply_markup=create_countries_kb())
     await state.set_state(StepsForm.GET_COUNTRY)
 
-# Обработчик команды "Специализация"
-@router.message(F.text == 'Специализация')
-async def bt_specialization(message: Message, state: FSMContext):
-    await message.answer(f'Выберите специализацию', reply_markup=get_kb_specializations())
-    await state.set_state(StepsForm.GET_SPECIALIZATION)
-
-# Обработчик команды "Все вакансии"
-@router.message(F.text == 'Все вакансии')
-async def all_vacancies(message: Message, state: FSMContext):
+# Обработчик команды "Страна"
+@router.message(StepsForm.GET_COUNTRY)
+async def bt_vacancy(message: Message, state: FSMContext):
+    flag = message.text.split()[1]
+    if await check_in_database_flag(flag) and flag != get_buttons_data_emoji("vacancy_kb", 1):
+        await message.answer(get_text('no_vacancies'), reply_markup=create_countries_kb())
+        return
+    if flag == get_buttons_data_emoji("vacancy_kb", 1):
+        await state.clear()
+        await restart_bot(message)
+        return
     global vacancy_blocks
     vacancy_blocks = get_vacancies()
     global current_index
     current_index = 0
-
-    if vacancy_blocks:
-        await message.answer("Вакансии:", reply_markup=kb.vacancy)
-        await send_vacancies(message, state)
-    else:
-        await message.answer("По вашему запросу ничего не найдено.")
-
-
-
-# Обработчик состояния выбора города
-@router.message(StepsForm.GET_COUNTRY)
-async def bt_city(message: Message, state: FSMContext):
-    if message.text == 'Специализация':
-        await bt_specialization(message, state)
-    else:
-        await message.answer(f'Выберите город или Не важно', reply_markup=get_kb_cities(message.text))
-        await state.update_data(country=message.text)
-        await state.set_state(StepsForm.GET_CITY)
-
-# Обработчик состояния выбора фильтрации специализации
-@router.message(StepsForm.GET_CITY)
-async def bt_specialization_filter(message: Message, state: FSMContext):
-    if message.text == 'Специализация':
-        await bt_specialization(message, state)
-    else:
-        if message.text == 'Не важно':
-            context_data = await state.get_data()
-            country_name = context_data.get('country')
-            await message.answer(f'Выберите специализацию или выберите Не важно', reply_markup=get_kb_specializations(country_name))
-        else:
-            await message.answer(f'Выберите специализацию или выберите Не важно', reply_markup=get_kb_specializations(None, message.text))
-            await state.update_data(city=message.text)
-        await state.set_state(StepsForm.GET_SPECIALIZATION)
-
-# Обработчик состояния выбора специализации
-@router.message(StepsForm.GET_SPECIALIZATION)
-async def bt_vacancy(message: Message, state: FSMContext):
-    context_data = await state.get_data()
-    country, city = context_data.get('country'), context_data.get('city')
-    specialization = message.text
     await state.clear()
-
-    global vacancy_blocks
-
-
-    vacancy_blocks = get_vacancies(country, city, specialization)
-
-    global current_index
-    current_index = 0
-
-    await message.answer(f'Вакансии : {specialization}', reply_markup=kb.vacancy)
+    await message.answer(get_text('here_is_what_we_have'), reply_markup=create_vacancy_kb())
     await send_vacancies(message, state)
 
+
 # Обработчик команды "Просмотреть ещё"
-@router.message(F.text == 'Просмотреть ещё')
+@router.message(F.text.rsplit(' ', 1)[-1] == get_buttons_data_emoji("vacancy_kb", 0))
 async def bt_cont(message: Message, state: FSMContext):
     global current_index
     global vacancy_blocks
@@ -118,61 +123,41 @@ async def send_vacancies(message: Message, state: FSMContext):
     global vacancy_blocks
 
     if current_index >= len(vacancy_blocks):
-        await message.answer("Вакансии закончились.")
+        await message.answer(get_text('vacancies_finished'))
         return
 
     for i in range(current_index, min(current_index + 5, len(vacancy_blocks))):
 
         vacancy_block, keyboard = vacancy_blocks[i]
-        await message.answer(f'Вакансия {i + 1}:\n{vacancy_block}', reply_markup=keyboard)
+        await message.answer(f'{get_text("vacancy_prefix")} {i + 1}:\n{vacancy_block}', reply_markup=keyboard)
 
 
     if current_index < len(vacancy_blocks):
-        await message.answer("Для продолжения нажмите 'Просмотреть ещё'", reply_markup=kb.vacancy)
+        await message.answer(get_text('view_more'), reply_markup=create_vacancy_kb())
 
 
-
-@router.callback_query(F.data.startswith("vacancy_"))
-async def fill_acc(message: Message, state:FSMContext):
-    await message.answer(f'Введите своё ФИО: ')
-    vacancy_id = message.data.split('_')[1]
-    await state.update_data(vacancy_id=vacancy_id)
-    await state.set_state(StepsForm.GET_FIO)
-
-@router.message(StepsForm.GET_FIO)
-async def get_name(message: Message, state: FSMContext):
-    fio = message.text.strip()
-    if not re.match(r'^[А-ЯЁа-яёA-Za-z]+\s[А-ЯЁа-яёA-Za-z]+\s[А-ЯЁа-яёA-Za-z]+$', fio):
-        await message.answer("Пожалуйста, введите корректное ФИО (Фамилия Имя Отчество), используя буквы и пробелы. Попробуйте снова.")
-        return  # Возвращаемся к ожиданию правильного ввода
-
-    await state.update_data(fio=fio)
-    await message.answer("Введите ваш номер мобильного телефона:")
-    await state.set_state(StepsForm.GET_NUMBER)
+@router.callback_query(F.data.startswith("details_"))
+async def details(query: CallbackQuery):
+    vacancy_id = int(query.data.split('_')[1])
+    vacancy_block, keyboard = get_details(vacancy_id)
 
 
-@router.message(StepsForm.GET_NUMBER)
-async def get_number(message: Message, state: FSMContext):
-    number = message.text.strip()
-    if re.match(r'^\+\d{12}$', number):  # Проверьте номер на соответствие нужному формату
-        tel_number = number
-    else:
-        await message.answer("Пожалуйста, введите корректный номер мобильного телефона. Попробуйте снова.")
-
-    context_data = await state.get_data()
-    vacancy_id, fio = context_data.get('vacancy_id'), context_data.get('fio')
-    fill_data_in_database(vacancy_id, fio, tel_number)
-    await message.answer(f'Ваши данные успешно были добавлены')
-    await state.clear()
+    for part in vacancy_block:
+        await query.message.answer(part, reply_markup=keyboard)
+    await query.message.answer(get_text('back'), reply_markup=create_details_kb())
 
 
+@router.message(F.text.rsplit(' ', 1)[-1] == get_buttons_data_emoji("details_kb", 0))
+async def restart_bot_vacancy(message: Message, state: FSMContext):
+    await message.answer(get_text('here_is_what_we_have'), reply_markup=create_vacancy_kb())
+    await send_vacancies(message, state)
 
 # Обработчик команды "Назад в меню"
-@router.message(F.text == 'Назад в меню')
+@router.message(F.text.rsplit(' ', 1)[-1] == get_buttons_data_emoji("vacancy_kb", 1))
 async def restart_bot(message: Message):
-    await get_start(message)
+    await message.answer(get_text('back_to_menu'), reply_markup=create_main_kb())
 
 # Обработчик неизвестных команд
 @router.message()
 async def answer(message: Message):
-    await message.reply('Я тебя не понимаю')
+    await message.reply(get_text('unknown_command'))
